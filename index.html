@@ -325,11 +325,18 @@ body{
 #p-cards{overflow:hidden}
 .cards{
   display:flex;align-items:center;justify-content:center;gap:14px;
-  margin:64px 0 18px;perspective:1100px;cursor:pointer;
+  margin:52px 0 18px;padding:32px 10px;perspective:1100px;cursor:pointer;
 }
-.cardwrap:nth-child(1){transform:rotate(-4.5deg) translateY(6px)}
-.cardwrap:nth-child(3){transform:rotate(4.5deg) translateY(6px)}
-.cardwrap:nth-child(2){transform:translateY(-4px) scale(1.03);z-index:2}
+.cardwrap{
+  position:relative;cursor:pointer;transition:transform .45s ease,filter .45s ease;
+  transform:rotate(var(--tilt,0deg)) translateY(var(--y,0px)) scale(var(--s,1));
+}
+.cardwrap:nth-child(1){--tilt:-4.5deg;--y:6px}
+.cardwrap:nth-child(2){--tilt:0deg;--y:-4px;--s:1.03;z-index:2}
+.cardwrap:nth-child(3){--tilt:4.5deg;--y:6px}
+.cardwrap:active{transform:rotate(var(--tilt,0deg)) translateY(var(--y,0px)) scale(.95)}
+.cards:not(.paused) .cardwrap:hover{filter:drop-shadow(0 0 18px rgba(170,130,255,.45))}
+.cards.paused .cardwrap{filter:drop-shadow(0 0 14px rgba(170,130,255,.30))}
 .card{
   position:relative;width:104px;aspect-ratio:9/16;
   transform-style:preserve-3d;
@@ -366,8 +373,10 @@ body{
 .face.back{transform:rotateY(180deg)}
 .cardhint{
   text-align:center;font-family:var(--f-title);font-size:8px;letter-spacing:.36em;
-  color:var(--faint);text-transform:uppercase;
+  color:var(--faint);text-transform:uppercase;cursor:pointer;
+  padding:10px 0;margin-top:2px;transition:color .35s ease;
 }
+.cardhint:hover{color:var(--violet-soft)}
 
 /* ─────────── 尾声 ─────────── */
 #p-end{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
@@ -584,27 +593,27 @@ body{
       <p class="sub">turn them slowly, then stop them</p>
 
       <div class="cards" id="cards">
-        <div class="cardwrap">
+        <div class="cardwrap" data-url="https://www.kdocs.cn/l/ckkSyPyyKYbc" data-title="板评">
           <div class="card"><div class="card-inner">
             <div class="face front"><img src="assets/card1.jpg" alt="板评"><div class="tag">板评<small>Board</small></div></div>
-            <div class="face back"><img src="assets/card1.jpg" alt="板评"><div class="tag">板评<small>Board</small></div></div>
+            <div class="face back"><img src="assets/card1.jpg" alt="板评"><div class="tag">板评<small>查看 ↗</small></div></div>
           </div></div>
         </div>
-        <div class="cardwrap">
+        <div class="cardwrap" data-url="https://www.kdocs.cn/l/cd9PtvtZTMPB" data-title="话术">
           <div class="card"><div class="card-inner">
             <div class="face front"><img src="assets/card2.jpg" alt="话术"><div class="tag">话术<small>Speech</small></div></div>
-            <div class="face back"><img src="assets/card2.jpg" alt="话术"><div class="tag">话术<small>Speech</small></div></div>
+            <div class="face back"><img src="assets/card2.jpg" alt="话术"><div class="tag">话术<small>查看 ↗</small></div></div>
           </div></div>
         </div>
-        <div class="cardwrap">
+        <div class="cardwrap" data-url="https://www.kdocs.cn/l/cqO3rGFJ6Y2W" data-title="卡类">
           <div class="card"><div class="card-inner">
             <div class="face front"><img src="assets/card3.jpg" alt="卡类"><div class="tag">卡类<small>Card Type</small></div></div>
-            <div class="face back"><img src="assets/card3.jpg" alt="卡类"><div class="tag">卡类<small>Card Type</small></div></div>
+            <div class="face back"><img src="assets/card3.jpg" alt="卡类"><div class="tag">卡类<small>查看 ↗</small></div></div>
           </div></div>
         </div>
       </div>
 
-      <div class="cardhint">tap to pause · tap again to turn</div>
+      <div class="cardhint">tap a card to open · tap blank to pause</div>
     </section>
 
     <!-- 尾声 -->
@@ -814,13 +823,29 @@ document.querySelectorAll('.tab').forEach(btn=>{
   render(); render();          // 两份，配合 translateY(-50%) 无缝循环
 })();
 
-/* ---------- 卡牌：依次循环旋转，点击暂停 ---------- */
+/* ---------- 卡牌：依次旋转；点卡跳转文档，点空白暂停 ---------- */
 (function(){
   const deck = document.getElementById('cards');
   const hint = document.querySelector('.cardhint');
-  deck.addEventListener('click', ()=>{
+  const TIP = 'tap a card to open · tap blank to pause';
+  const TIP_PAUSED = 'paused · tap blank to resume';
+  function togglePause(){
     const paused = deck.classList.toggle('paused');
-    hint.textContent = paused ? 'paused · tap again to turn' : 'tap to pause · tap again to turn';
+    hint.textContent = paused ? TIP_PAUSED : TIP;
+  }
+  hint.addEventListener('click', togglePause);
+  deck.addEventListener('click', e=>{
+    const card = e.target.closest('.cardwrap');
+    if(card){
+      const url = card.dataset.url;
+      if(!url) return;
+      // 用 <a> 触发跳转，兼容会拦截 window.open 的 App 内置浏览器
+      const a = document.createElement('a');
+      a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      document.body.appendChild(a); a.click(); a.remove();
+      return;
+    }
+    togglePause();
   });
 })();
 
