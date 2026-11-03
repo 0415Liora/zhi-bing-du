@@ -344,10 +344,12 @@ body{
 .card-inner{
   position:absolute;inset:0;transform-style:preserve-3d;
   animation:spin 11s linear infinite;
+  transition:transform .7s cubic-bezier(.2,.7,.3,1);
 }
+/* 暂停时停回正面，便于看清卡面 */
+.cards.paused .card-inner{animation-play-state:paused;animation:none;transform:rotateY(0deg)}
 .cardwrap:nth-child(2) .card-inner{animation-duration:13s}
 .cardwrap:nth-child(3) .card-inner{animation-duration:15s}
-.cards.paused .card-inner{animation-play-state:paused}
 @keyframes spin{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
 .face{
   position:absolute;inset:0;overflow:hidden;border-radius:9px;
@@ -357,6 +359,31 @@ body{
   background:#0b0620;
 }
 .face img{width:100%;height:100%;object-fit:cover;display:block;opacity:.92}
+/* 艺术卡面：贝壳 · 波纹 · 星轨 */
+.art{position:absolute;inset:0;overflow:hidden}
+.art-1{background:radial-gradient(125% 82% at 50% 16%,#3d2276 0%,#1d1040 54%,#0b0620 100%)}
+.art-2{background:radial-gradient(125% 82% at 50% 16%,#2b1a66 0%,#160d34 54%,#090518 100%)}
+.art-3{background:radial-gradient(125% 82% at 50% 16%,#47297f 0%,#211046 54%,#0c0622 100%)}
+.art .gl{
+  position:absolute;left:calc(50% - 52px);top:30%;width:104px;height:104px;border-radius:50%;
+  background:radial-gradient(circle,rgba(172,124,255,.42),rgba(120,70,220,.12) 55%,transparent 72%);
+  filter:blur(10px);
+}
+.art svg{
+  position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);
+  width:78%;height:78%;color:var(--violet-soft);
+  filter:drop-shadow(0 0 10px rgba(160,120,255,.45));
+}
+.art::after{
+  content:"";position:absolute;inset:0;opacity:.075;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+.face::before{
+  content:"";position:absolute;inset:7px;z-index:3;pointer-events:none;
+  border:1px solid rgba(169,139,255,.20);border-radius:6px;
+}
+.face.back .art{opacity:.55}
+.face.back .art svg{top:56%}
 .face::after{
   content:"";position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(12,7,26,.40),rgba(12,7,26,.05) 40%,rgba(10,5,22,.72));
@@ -464,6 +491,55 @@ body{
     <g fill="currentColor">
       <ellipse cx="20" cy="46" rx="7" ry="5.4"/>
       <ellipse cx="42" cy="39" rx="7" ry="5.4"/>
+    </g>
+  <symbol id="art-shell" viewBox="0 0 120 150">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+      <path d="M60 136C26 131 8 106 10 73 12 43 33 20 60 12c27 8 48 31 50 61 2 33-16 58-50 63Z" opacity=".95"/>
+      <path d="M60 136V13" opacity=".45"/>
+      <path d="M60 136 29 24M60 136l31-11M60 136 15 53M60 136l45-29M60 136 13 90M60 136l47-37" opacity=".42"/>
+      <path d="M45 136c4-9 9-18 15-27 6 9 11 18 15 27" opacity=".55"/>
+      <path d="M22 96c10-6 20-9 30-9M98 96c-10-6-20-9-30-9" opacity=".3"/>
+      <path d="M30 52c14-8 30-12 46-12" opacity=".28"/>
+    </g>
+    <path d="M52 137 60 128l8 9Z" fill="currentColor" opacity=".7"/>
+  </symbol>
+
+  <symbol id="art-wave" viewBox="0 0 120 150">
+    <g fill="none" stroke="currentColor" stroke-width="1">
+      <path d="M8 96c13-20 24 16 38-3s25 15 38-3 20 10 28-1" opacity=".85"/>
+      <path d="M8 108c13-20 24 16 38-3s25 15 38-3 20 10 28-1" opacity=".5"/>
+      <path d="M8 84c13-20 24 16 38-3s25 15 38-3 20 10 28-1" opacity=".5"/>
+      <ellipse cx="60" cy="102" rx="32" ry="32" opacity=".32"/>
+      <ellipse cx="60" cy="102" rx="48" ry="48" opacity=".2"/>
+      <ellipse cx="60" cy="102" rx="64" ry="64" opacity=".12"/>
+      <path d="M60 34v136" opacity=".22"/>
+    </g>
+    <g fill="currentColor">
+      <circle cx="60" cy="102" r="3.2" opacity=".85"/>
+      <circle cx="28" cy="66" r="1.6" opacity=".5"/>
+      <circle cx="92" cy="66" r="1.6" opacity=".5"/>
+      <circle cx="60" cy="30" r="1.8" opacity=".6"/>
+    </g>
+  </symbol>
+
+  <symbol id="art-orbit" viewBox="0 0 120 150">
+    <g fill="none" stroke="currentColor" stroke-width="1">
+      <path d="M60 22 106 72 60 122 14 72Z" opacity=".7"/>
+      <path d="M60 40 88 72 60 104 32 72Z" opacity=".45"/>
+      <circle cx="60" cy="72" r="46" opacity=".28"/>
+      <circle cx="60" cy="72" r="28" opacity=".18"/>
+      <path d="M14 72h92M60 22v100" opacity=".2"/>
+    </g>
+    <g fill="currentColor">
+      <circle cx="60" cy="72" r="2.6" opacity=".8"/>
+      <circle cx="60" cy="22" r="1.5" opacity=".6"/>
+      <circle cx="60" cy="122" r="1.5" opacity=".6"/>
+      <circle cx="14" cy="72" r="1.5" opacity=".6"/>
+      <circle cx="106" cy="72" r="1.5" opacity=".6"/>
+      <circle cx="88" cy="40" r="1.2" opacity=".45"/>
+      <circle cx="32" cy="104" r="1.2" opacity=".45"/>
+      <circle cx="32" cy="40" r="1.2" opacity=".45"/>
+      <circle cx="88" cy="104" r="1.2" opacity=".45"/>
     </g>
   </symbol>
 </svg>
@@ -600,20 +676,38 @@ body{
       <div class="cards" id="cards">
         <div class="cardwrap" data-url="https://www.kdocs.cn/l/ckkSyPyyKYbc" data-title="板评">
           <div class="card"><div class="card-inner">
-            <div class="face front"><img src="assets/card1.jpg" alt="板评"><div class="tag">板评<small>Board</small></div></div>
-            <div class="face back"><img src="assets/card1.jpg" alt="板评"><div class="tag">板评<small>查看 ↗</small></div></div>
+            <div class="face front">
+              <div class="art art-1"><span class="gl"></span><svg><use href="#art-shell"/></svg></div>
+              <div class="tag">板评<small>Board</small></div>
+            </div>
+            <div class="face back">
+              <div class="art art-1"><span class="gl"></span><svg><use href="#art-shell"/></svg></div>
+              <div class="tag">板评<small>查看 ↗</small></div>
+            </div>
           </div></div>
         </div>
         <div class="cardwrap" data-url="https://www.kdocs.cn/l/cqO3rGFJ6Y2W" data-title="话术">
           <div class="card"><div class="card-inner">
-            <div class="face front"><img src="assets/card2.jpg" alt="话术"><div class="tag">话术<small>Speech</small></div></div>
-            <div class="face back"><img src="assets/card2.jpg" alt="话术"><div class="tag">话术<small>查看 ↗</small></div></div>
+            <div class="face front">
+              <div class="art art-2"><span class="gl"></span><svg><use href="#art-wave"/></svg></div>
+              <div class="tag">话术<small>Speech</small></div>
+            </div>
+            <div class="face back">
+              <div class="art art-2"><span class="gl"></span><svg><use href="#art-wave"/></svg></div>
+              <div class="tag">话术<small>查看 ↗</small></div>
+            </div>
           </div></div>
         </div>
         <div class="cardwrap" data-url="https://www.kdocs.cn/l/cd9PtvtZTMPB" data-title="卡类">
           <div class="card"><div class="card-inner">
-            <div class="face front"><img src="assets/card3.jpg" alt="卡类"><div class="tag">卡类<small>Card Type</small></div></div>
-            <div class="face back"><img src="assets/card3.jpg" alt="卡类"><div class="tag">卡类<small>查看 ↗</small></div></div>
+            <div class="face front">
+              <div class="art art-3"><span class="gl"></span><svg><use href="#art-orbit"/></svg></div>
+              <div class="tag">卡类<small>Card Type</small></div>
+            </div>
+            <div class="face back">
+              <div class="art art-3"><span class="gl"></span><svg><use href="#art-orbit"/></svg></div>
+              <div class="tag">卡类<small>查看 ↗</small></div>
+            </div>
           </div></div>
         </div>
       </div>
